@@ -197,6 +197,7 @@ elif page == "Top 10 Insights":
 
     # Closing the database connection
     conn.close()
+    #Exit
 
 
 
