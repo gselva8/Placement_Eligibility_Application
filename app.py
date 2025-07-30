@@ -67,137 +67,139 @@ if page == "Placement Eligibility Filter":
 
 # Taks 2: Providing Good Insights about the Dataset using 10 qeuries: 
 elif page == "Top 10 Insights":
-    st.title("📊Top Actionable insights from the Stored Data")
+    st.title("📊Top Actionable Insights from the Stored Data")
+    insight_options = [
+        "1. Top 3 Placed Students and Their CTC",
+        "2. Second Top Student by Average Programming Score",
+        "3. Students with Good Communication, Weak in Programming",
+        "4. Bottom 3 Placed Students and Their CTC",
+        "5. Students Who Are Not Ready for Placement",
+        "6. Company That Hired the Most Students",
+        "7. Top 3 Students by Avg Programming & Communication > 70%",
+        "8. Students Who Are Placed",
+        "9. Count of Students Who Are Ready for Placements",
+        "10. Count of Students Who Are Not Ready for Placements"
+    ]
+    selected_insight = st.selectbox("Select an insight to view:", insight_options)
 
-    # 1. Top 3 placed students and their CTC.
-    st.markdown("### 1. Top 3 Placed Students and Their CTC")
-    query1 = """
-    SELECT s.name, p.placement_package
-    FROM Students s
-    JOIN Placements p ON s.student_id = p.student_id
-    WHERE p.placement_status = 'Placed'
-    ORDER BY p.placement_package DESC
-    LIMIT 3
-    """
-    df1 = pd.read_sql_query(query1, conn)
-    st.dataframe(df1)
-
-    # 2. Second top student based on average of Programming Table details 
-    st.markdown("### 2. Second Top Student by Average Programming Score")
-    query2 = """
-    SELECT s.name, p.student_id,
-    (p.problems_solved + p.assessments_completed + p.mini_projects + 
-    p.certifications_earned + p.latest_project_score) / 5.0 AS avg_programming_score
-    FROM Programming p
-    JOIN Students s ON p.student_id = s.student_id
-    ORDER BY avg_programming_score DESC
-    LIMIT 1 OFFSET 1
-    """
-    df2 = pd.read_sql_query(query2, conn)
-    st.dataframe(df2)
-
-    # 3. Select all students who have good communication (>70), weak in programming (50 - 70)
-    st.markdown('### 3. Students who have good communication, weak in programming')
-    query3 = """
-    SELECT s.name, p.problems_solved, ss.communication
-    FROM Students s
-    JOIN Programming p ON s.student_id = p.student_id
-    JOIN SoftSkills ss ON s.student_id = ss.student_id
-    WHERE ss.communication > 70
-      AND p.problems_solved BETWEEN 50 AND 70
-    """
-    df3 = pd.read_sql_query(query3, conn)
-    st.dataframe(df3)
-
-    # 4. bottom 3 placed students and their CTC.
-    st.markdown("### 4. Bottom 3 Placed Students and Their CTC")
-    query4 = """
-    SELECT s.name, p.placement_package
-    FROM Students s
-    JOIN Placements p ON s.student_id = p.student_id
-    WHERE p.placement_status = 'Placed'
-    ORDER BY p.placement_package ASC
-    LIMIT 3
-    """
-    df4 = pd.read_sql_query(query4, conn)
-    st.dataframe(df4)
-
-    # 5. Students who're not ready for placement.
-    st.markdown("### 5. Students Who Are Not Placed")
-    query5 = """
-    SELECT s.name, p.placement_status
-    FROM Students s
-    JOIN Placements p ON s.student_id = p.student_id
-    WHERE p.placement_status = 'Not Ready'
-    """
-    df5 = pd.read_sql_query(query5, conn)
-    st.dataframe(df5)
-
-    # 6. Of the placed students, which company hired the most placed students.
-    st.markdown("### 6. Company That Hired the Most Students")
-    query6 = """
-    SELECT company_name, COUNT(*) AS hired_count
-    FROM Placements
-    WHERE placement_status = 'Placed'
-    AND company_name IS NOT NULL
-    GROUP BY company_name
-    ORDER BY hired_count DESC
-    LIMIT 1
-    """
-    df6 = pd.read_sql_query(query6, conn)
-    st.dataframe(df6)
-
-    # 7. Select top 3 students whose average of (programming score combined with communication skills) > 70%
-    st.markdown("### 7. Top 3 Students by Average Programming and Communication more than 70%")
-    query7 = """
-    SELECT s.name,
-        p.latest_project_score,
-        ss.communication,
-        (p.latest_project_score + ss.communication) / 2.0 AS avg_score
-    FROM Students s
-    JOIN Programming p ON s.student_id = p.student_id
-    JOIN SoftSkills ss ON s.student_id = ss.student_id
-    WHERE (p.latest_project_score + ss.communication) / 2.0 > 70
-    ORDER BY avg_score DESC
-    LIMIT 3
-    """
-    df7 = pd.read_sql_query(query7, conn)
-    st.dataframe(df7)
-
-    # 8. Count of students who got placed
-    st.markdown("### 8. Students Who Are Placed")
-    query8 = """
-    SELECT s.name, p.placement_status
-    FROM Students s
-    JOIN Placements p ON s.student_id = p.student_id
-    WHERE p.placement_status = 'Placed'
-    """
-    df8 = pd.read_sql_query(query8, conn)
-    st.dataframe(df8)
-
-    # 9. count of students who are ready for placements.
-    st.markdown("### 9. Count of Students Who Are Ready for Placements")
-    query9 = """   
-    SELECT COUNT(*) AS Ready_for_Placement
-    FROM Placements
-    WHERE placement_status = 'Ready'
-    """
-    df9 = pd.read_sql_query(query9, conn)
-    st.dataframe(df9)
-
-    # 10. Count of students who are not ready for placements.
-    st.markdown("### 10. Count of Students Who Are Not Ready for Placements")
-    query10 = """
-    SELECT COUNT(*) AS Not_ready_for_Placement
-    FROM Placements
-    WHERE placement_status = 'Not Ready'
-    """
-    df10 = pd.read_sql_query(query10, conn)
-    st.dataframe(df10)
-
+    if selected_insight == insight_options[0]:
+        st.markdown("### 1. Top 3 Placed Students and Their CTC")
+        query = """
+        SELECT s.name, p.placement_package
+        FROM Students s
+        JOIN Placements p ON s.student_id = p.student_id
+        WHERE p.placement_status = 'Placed'
+        ORDER BY p.placement_package DESC
+        LIMIT 3
+        """
+        df = pd.read_sql_query(query, conn)
+        st.dataframe(df)
+    elif selected_insight == insight_options[1]:
+        st.markdown("### 2. Second Top Student by Average Programming Score")
+        query = """
+        SELECT s.name, p.student_id,
+        (p.problems_solved + p.assessments_completed + p.mini_projects + 
+        p.certifications_earned + p.latest_project_score) / 5.0 AS avg_programming_score
+        FROM Programming p
+        JOIN Students s ON p.student_id = s.student_id
+        ORDER BY avg_programming_score DESC
+        LIMIT 1 OFFSET 1
+        """
+        df = pd.read_sql_query(query, conn)
+        st.dataframe(df)
+    elif selected_insight == insight_options[2]:
+        st.markdown('### 3. Students with Good Communication, Weak in Programming')
+        query = """
+        SELECT s.name, p.problems_solved, ss.communication
+        FROM Students s
+        JOIN Programming p ON s.student_id = p.student_id
+        JOIN SoftSkills ss ON s.student_id = ss.student_id
+        WHERE ss.communication > 70
+          AND p.problems_solved BETWEEN 50 AND 70
+        """
+        df = pd.read_sql_query(query, conn)
+        st.dataframe(df)
+    elif selected_insight == insight_options[3]:
+        st.markdown("### 4. Bottom 3 Placed Students and Their CTC")
+        query = """
+        SELECT s.name, p.placement_package
+        FROM Students s
+        JOIN Placements p ON s.student_id = p.student_id
+        WHERE p.placement_status = 'Placed'
+        ORDER BY p.placement_package ASC
+        LIMIT 3
+        """
+        df = pd.read_sql_query(query, conn)
+        st.dataframe(df)
+    elif selected_insight == insight_options[4]:
+        st.markdown("### 5. Students Who Are Not Ready for Placement")
+        query = """
+        SELECT s.name, p.placement_status
+        FROM Students s
+        JOIN Placements p ON s.student_id = p.student_id
+        WHERE p.placement_status = 'Not Ready'
+        """
+        df = pd.read_sql_query(query, conn)
+        st.dataframe(df)
+    elif selected_insight == insight_options[5]:
+        st.markdown("### 6. Company That Hired the Most Students")
+        query = """
+        SELECT company_name, COUNT(*) AS hired_count
+        FROM Placements
+        WHERE placement_status = 'Placed'
+        AND company_name IS NOT NULL
+        GROUP BY company_name
+        ORDER BY hired_count DESC
+        LIMIT 1
+        """
+        df = pd.read_sql_query(query, conn)
+        st.dataframe(df)
+    elif selected_insight == insight_options[6]:
+        st.markdown("### 7. Top 3 Students by Avg Programming & Communication > 70%")
+        query = """
+        SELECT s.name,
+            p.latest_project_score,
+            ss.communication,
+            (p.latest_project_score + ss.communication) / 2.0 AS avg_score
+        FROM Students s
+        JOIN Programming p ON s.student_id = p.student_id
+        JOIN SoftSkills ss ON s.student_id = ss.student_id
+        WHERE (p.latest_project_score + ss.communication) / 2.0 > 70
+        ORDER BY avg_score DESC
+        LIMIT 3
+        """
+        df = pd.read_sql_query(query, conn)
+        st.dataframe(df)
+    elif selected_insight == insight_options[7]:
+        st.markdown("### 8. Students Who Are Placed")
+        query = """
+        SELECT s.name, p.placement_status
+        FROM Students s
+        JOIN Placements p ON s.student_id = p.student_id
+        WHERE p.placement_status = 'Placed'
+        """
+        df = pd.read_sql_query(query, conn)
+        st.dataframe(df)
+    elif selected_insight == insight_options[8]:
+        st.markdown("### 9. Count of Students Who Are Ready for Placements")
+        query = """
+        SELECT COUNT(*) AS Ready_for_Placement
+        FROM Placements
+        WHERE placement_status = 'Ready'
+        """
+        df = pd.read_sql_query(query, conn)
+        st.dataframe(df)
+    elif selected_insight == insight_options[9]:
+        st.markdown("### 10. Count of Students Who Are Not Ready for Placements")
+        query = """
+        SELECT COUNT(*) AS Not_ready_for_Placement
+        FROM Placements
+        WHERE placement_status = 'Not Ready'
+        """
+        df = pd.read_sql_query(query, conn)
+        st.dataframe(df)
     # Closing the database connection
     conn.close()
-    #Exit
 
 
 
